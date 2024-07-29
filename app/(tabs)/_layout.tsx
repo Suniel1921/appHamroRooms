@@ -1,37 +1,16 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { View, Text } from 'react-native'
+import React from 'react'
+import { Tabs } from 'expo-router'
+import { FontAwesome } from '@expo/vector-icons'
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const TabLayout = () => {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+   <Tabs screenOptions={{tabBarActiveTintColor: '#7371f9'}}>
+    <Tabs.Screen name='index' options={{title: 'Home',  tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />}}/>
+    <Tabs.Screen name='postYourRooms' options={{title: 'Post Your Room', tabBarIcon: ({color, size})=> <FontAwesome size={28} name='plus' color={color}/>}}/>
+    <Tabs.Screen name='profile' options={{title: 'Profile', tabBarIcon: ({color, size})=> <FontAwesome size={28} name='user' color={color}/>}}/>
+   </Tabs>
+  )
 }
+
+export default TabLayout
