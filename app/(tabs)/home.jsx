@@ -154,12 +154,14 @@
 
 // with refresh functionality
 
-import { View, Text, Image, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, Image, FlatList, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const Home = () => {
   const [roomList, setRoomList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter(); // Initialize router
 
   const getAllRooms = async () => {
     try {
@@ -167,11 +169,13 @@ const Home = () => {
       const data = await response.json();
       if (data.success) {
         setRoomList(data.allRoom);
+      } else {
+        console.error('API response error:', data.message);
       }
     } catch (error) {
       console.error('Error fetching room data:', error);
     } finally {
-      setRefreshing(false); // Ensure refreshing state is reset when done
+      setRefreshing(false);
     }
   };
 
@@ -181,22 +185,32 @@ const Home = () => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    getAllRooms();
+    getAllRooms().catch(error => {
+      console.error('Error refreshing room data:', error);
+      setRefreshing(false);
+    });
   }, []);
 
-  // Render function for each item
+  const navigateToRoomDetails = (slug) => {
+    router.push(`/roomDetails/${slug}`);
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.roomContainer}>
-      {item.images.length > 0 && (
-        <Image 
-          source={{ uri: item.images[0] }} 
-          style={styles.roomImage} 
-        />
-      )}
-      <Text style={styles.roomAddress}>{item.address}</Text>
-      <Text style={styles.roomPrice}>Price: ${item.rent}</Text>
-      <Text style={styles.roomCity}>City: {item.city.name}</Text>
-    </View>
+    <TouchableOpacity onPress={() => navigateToRoomDetails(item.slug)}>
+      <View style={styles.roomContainer}>
+        {item.images && item.images.length > 0 ? (
+          <Image 
+            source={{ uri: item.images[0] }} 
+            style={styles.roomImage} 
+          />
+        ) : (
+          <View style={styles.placeholderImage} />
+        )}
+        <Text style={styles.roomAddress}>{item.address}</Text>
+        <Text style={styles.roomPrice}>Price: ${item.rent}</Text>
+        <Text style={styles.roomCity}>City: {item.city?.name || 'Unknown'}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -226,8 +240,15 @@ const styles = StyleSheet.create({
   },
   roomImage: {
     width: '100%',
-    height: 200,
+    height: 300,
     resizeMode: 'cover',
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  placeholderImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#e0e0e0',
     marginBottom: 10,
   },
   roomAddress: {
@@ -237,6 +258,10 @@ const styles = StyleSheet.create({
   roomPrice: {
     fontSize: 14,
     color: 'green',
+  },
+  roomCity: {
+    fontSize: 14,
+    color: 'gray',
   },
 });
 
